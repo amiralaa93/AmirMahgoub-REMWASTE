@@ -1,0 +1,78 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+jobs:
+  test:
+    name: Run Playwright Tests
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout to branch ${{ inputs.test_branch }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.test_branch }}
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        shell: bash
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        shell: bash
+        run: npx playwright install --with-deps
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+      - name: Run Playwright tests
+        run: |
+          npx playwright test --reporter=html
+
+      - name: Upload HTML test report
+        uses: actions/upload-artifact@v4
+        if: ${{ always() && !cancelled() }}
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: playwright-report
+          retention-days: 30
+          
+      - name: Set report URL
+        if: always()
+        run: |
+          echo "REPORT_URL=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
+    
+      - name: Send Email Notification on Failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v5
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: Playwright Tests Failed 🚨
+          to: ${{ secrets.EMAIL_USERNAME }}
+          from: ${{ secrets.EMAIL_USERNAME }}
+          attachments: playwright-report.zip
+          html_body: |
+            <html>
+              <body>
+                <h2>🚨 Playwright Tests Failed</h2>
+                <p>The Playwright tests have failed in ${{ github.ref }}.</p>
+                <p>Commit: ${{ github.sha }}</p>
+                <p>View the full report here:
+                  <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">Test Report</a>
+                </p>
+              </body>
+            </html>
+          body: |
+            Playwright Tests Failed 🚨
+            Branch: ${{ github.ref }}
+            Commit: ${{ github.sha }}
+            View the full report at: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}

@@ -47,15 +47,16 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'node server.js',
+      command: 'npm start',
       cwd: backendDir,
+      port: 3001,
       timeout: 240000, // 4 minutes
-      reuseExistingServer: true,
-      stdout: 'ignore',
+      reuseExistingServer: !process.env.CI,
+      stdout: 'pipe',
       stderr: 'pipe',
-      env: { 
+      env: {
         NODE_ENV: 'test',
-        PORT: '3001'
+        PORT: '3001',
       }
     },
     {
@@ -67,6 +68,7 @@ export default defineConfig({
       stdout: 'ignore',
       stderr: 'pipe',
       env: {
+        NODE_ENV: 'test',
         BROWSER: 'none',
         PORT: '3000'
       }

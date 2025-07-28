@@ -150,6 +150,6 @@ app.delete('/tasks/:id', authenticateToken, (req, res) => {
 });
 
 const PORT = 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {  // Allow external connections
+  console.log('Server running on http://0.0.0.0:3001');
 });

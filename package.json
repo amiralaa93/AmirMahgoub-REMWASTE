@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "cd backend && npm start",
     "test": "playwright test --workers=1",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
@@ -19,5 +20,12 @@
     "@playwright/test": "^1.54.1",
     "@types/node": "^24.1.0",
     "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
   }
 }
