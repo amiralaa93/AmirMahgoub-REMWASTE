@@ -51,6 +51,12 @@ npm start
 
 **Tool Used**: `Playwright`
 
+**Install Playwright:**
+
+```bash
+npm install --save-dev playwright
+```
+
 **Test Scenarios**:
 
 * Register with valid/invalid credentials
